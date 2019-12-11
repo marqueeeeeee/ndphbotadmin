@@ -21,34 +21,94 @@ class _ViewWinnerPageState extends State<ViewWinnerPage>
   var url = 'http://xmasbot.us.openode.io/getVoteWinnerTop?VoteType=';
   var text = "Loading...";
   var isLoading = false;
+  Timer timer;
+
+  final messages1 = [
+    "booting windows 98 VM...",
+    "running some scripts... Uh oh!",
+    "Building.",
+    "Building..",
+    "Building...anticipation",
+    "wait for it...!",
+    "aaaaaaand the winner is!!",
+  ];
 
   getWinner() async {
     isLoading = true;
     var response = await http.get(url + widget.type);
     var jsonMap = json.decode(response.body.toString());
 
-    Timer.periodic(Duration(milliseconds: 1500), (Timer timer) {
+    var i = 0;
+
+    timer = Timer.periodic(Duration(milliseconds: 500), (Timer timer) {
+      // if(timer.tick <= messages1.length) {
+      //   setState(() {
+      //     text = messages1[i++];
+      //   });
+      // } else {
+
+      // }
+
       if (timer.tick == 1) {
         setState(() {
-          text = widget.type == "starf" ? "generating windows 98 VM!" : "here we go again!";
+          text = widget.type == "starf"
+              ? "starting windows 98 VM!"
+              : "here we go again!";
         });
-      } else if (timer.tick == 2) {
+      }
+
+      if (timer.tick == 3) {
         setState(() {
-          text = widget.type == "starf" ? "running some scripts! Uh oh!" : "running some scripts again! Uh oh again!";
+          text = widget.type == "starf"
+              ? "running some scripts! Uh oh!"
+              : "running some scripts again! Uh oh!";
         });
-      } else if (timer.tick == 3) {
+      }
+
+      if (timer.tick == 5) {
         setState(() {
-          text = widget.type == "starf" ? "wait for it! Building - anticipation" : "wait for it again!";
+          text = "Building.";
         });
-      } else if (timer.tick == 4) {
+      }
+
+      if (timer.tick == 6) {
+        setState(() {
+          text = "Building..";
+        });
+      }
+
+      if (timer.tick == 7) {
+        setState(() {
+          text = "Building...";
+        });
+      }
+
+      if (timer.tick == 8) {
+        setState(() {
+          text = "Building...anticipation";
+        });
+      }
+
+      if (timer.tick == 10) {
+        setState(() {
+          text =
+              widget.type == "starf" ? "wait for it..." : "wait for it again!";
+        });
+      }
+
+      if (timer.tick == 13) {
         setState(() {
           text = "aaaaaaand the winner is!!";
         });
-      } else
+      }
+
+      if (timer.tick == 15) {
         setState(() {
           text = jsonMap["score"] + " - " + jsonMap["email"];
           isLoading = false;
         });
+        timer.cancel();
+      }
     });
 
     // Timer(Duration(seconds: 3), () {
@@ -74,9 +134,34 @@ class _ViewWinnerPageState extends State<ViewWinnerPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Spacer(),
-          Text(
-            text,
-            style: TextStyle(color: Colors.white, fontSize: 30),
+          Visibility(
+            visible: isLoading,
+            child: Text(
+              text,
+              style: TextStyle(color: Colors.white, fontSize: 30),
+            ),
+          ),
+          Visibility(
+            visible: isLoading == false,
+            child: Column(
+              children: <Widget>[
+                // CircleAvatar(
+                //   backgroundImage: NetworkImage(
+                //       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7wil-aq047k9IPWEabcVVHJrJluvg5MaXBUJ6GmMCgGB8CkEA&s"),
+                //   radius: 80,
+                // ),
+                SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  "NAME",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold),
+                )
+              ],
+            ),
           ),
           SizedBox(
             height: 30,
