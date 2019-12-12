@@ -36,19 +36,29 @@ class _ViewWinnerPageState extends State<ViewWinnerPage>
   getWinner() async {
     isLoading = true;
     var response = await http.get(url + widget.type);
-    var jsonMap = json.decode(response.body.toString());
+    var scores = json.decode(response.body.toString())["scores"];
+    List<Score> scoreList = [];
 
-    var i = 0;
+    for (var score in scores) {
+      scoreList.add(Score.fromJson(score));
+    }
+
+    scoreList.sort((a, b) => b.scoreNumber.compareTo(a.scoreNumber));
+
+    //get all duplicates
+    var topScore = scoreList.first;
+    var duplicates = scoreList.where((a) => a.score == topScore.score).toList();
+    var textScore = "";
+
+    if (duplicates.length > 1) {
+      duplicates.forEach((i) {
+        textScore += i.name.replaceAll("\n", "") + " - " + i.score + "\n\n";
+      });
+    } else {
+      textScore = topScore.name.replaceAll("\n", "") + " - " + topScore.score;
+    }
 
     timer = Timer.periodic(Duration(milliseconds: 500), (Timer timer) {
-      // if(timer.tick <= messages1.length) {
-      //   setState(() {
-      //     text = messages1[i++];
-      //   });
-      // } else {
-
-      // }
-
       if (timer.tick == 1) {
         setState(() {
           text = widget.type == "starf"
@@ -104,7 +114,7 @@ class _ViewWinnerPageState extends State<ViewWinnerPage>
 
       if (timer.tick == 15) {
         setState(() {
-          text = jsonMap["score"] + " - " + jsonMap["email"];
+          text = textScore;
           isLoading = false;
         });
         timer.cancel();
@@ -145,16 +155,24 @@ class _ViewWinnerPageState extends State<ViewWinnerPage>
             visible: isLoading == false,
             child: Column(
               children: <Widget>[
+                Text(
+                  widget.type == "starm" ? "Winner for Male Category" : "Winner for Female Category",
+                  style: TextStyle(
+                      color: netflixRed,
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold),
+                ),
                 // CircleAvatar(
                 //   backgroundImage: NetworkImage(
                 //       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7wil-aq047k9IPWEabcVVHJrJluvg5MaXBUJ6GmMCgGB8CkEA&s"),
                 //   radius: 80,
+                //   backgroundColor: netflixRed,
                 // ),
                 SizedBox(
-                  height: 20,
+                  height: 30,
                 ),
                 Text(
-                  "NAME",
+                  text,
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 30,
@@ -199,5 +217,17 @@ class _ViewWinnerPageState extends State<ViewWinnerPage>
         ],
       ),
     );
+  }
+}
+
+class Score {
+  double scoreNumber;
+  String score;
+  String name;
+
+  Score.fromJson(Map<String, dynamic> map) {
+    scoreNumber = (map["scoreNumber"] as num).toDouble();
+    score = map["score"];
+    name = map["email"];
   }
 }
